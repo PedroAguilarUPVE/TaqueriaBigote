@@ -7,6 +7,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.table.DefaultTableModel;
+
 import conexion.ConexionBDSQLServer;
 import modelos.MDetallePedido;
 import modelos.MProductos;
@@ -105,6 +107,146 @@ public class CVentas {
 
         } catch (Exception e) {
             System.err.println("Error al registrar detalle: " + e.getMessage());
+        }
+    }
+
+	    /* =========================================================
+     * OBTENER ÓRDENES DEL DÍA
+     * ========================================================= */
+    public static List<Object[]> obtenerOrdenesDelDia() {
+
+        List<Object[]> lista = new ArrayList<>();
+
+        String sql = "SELECT idPedido, fecha, total, idEmpleado FROM Pedido WHERE CAST(fecha AS DATE) = CAST(GETDATE() AS DATE)";
+
+        try (Connection con = ConexionBDSQLServer.GetConexion();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+
+                Object[] orden = new Object[4];
+                orden[0] = rs.getInt("idPedido");
+                orden[1] = rs.getTimestamp("fecha");
+                orden[2] = rs.getDouble("total");
+                orden[3] = rs.getInt("idEmpleado");
+
+                lista.add(orden);
+            }
+
+        } catch (Exception e) {
+            System.err.println("Error al obtener órdenes del día: " + e.getMessage());
+        }
+
+        return lista;
+    }
+
+	    /* =========================================================
+     * OBTENER DETALLES DE UN PEDIDO
+     * ========================================================= */
+    public static List<Object[]> obtenerDetallesPedido(int idPedido) {
+        List<Object[]> lista = new ArrayList<>();
+        
+        String sql = "SELECT dp.idProducto, p.nombre, dp.cantidad, dp.subtotal " +
+                     "FROM DetallePedido dp " +
+                     "INNER JOIN Producto p ON dp.idProducto = p.idProducto " +
+                     "WHERE dp.idPedido = ?";
+        
+        try (Connection con = ConexionBDSQLServer.GetConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            
+            ps.setInt(1, idPedido);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Object[] detalle = new Object[4];
+                    detalle[0] = rs.getInt("idProducto");
+                    detalle[1] = rs.getString("nombre");
+                    detalle[2] = rs.getInt("cantidad");
+                    detalle[3] = rs.getDouble("subtotal");
+                    lista.add(detalle);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error al obtener detalles del pedido: " + e.getMessage());
+        }
+        
+        return lista;
+    }
+
+    /* =========================================================
+     * CARGAR PRODUCTOS PARA SELECCIÓN
+     * ========================================================= */
+    public static List<Object[]> cargarProductosParaSeleccion() {
+        List<Object[]> lista = new ArrayList<>();
+        
+        String sql = "SELECT idProducto, nombre, precio FROM Producto WHERE activo = 1";
+        
+        try (Connection con = ConexionBDSQLServer.GetConexion();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            
+            while (rs.next()) {
+                Object[] producto = new Object[3];
+                producto[0] = rs.getInt("idProducto");
+                producto[1] = rs.getString("nombre");
+                producto[2] = rs.getDouble("precio");
+                lista.add(producto);
+            }
+        } catch (Exception e) {
+            System.err.println("Error al cargar productos para selección: " + e.getMessage());
+        }
+        
+        return lista;
+    }
+
+    /* =========================================================
+     * ACTUALIZAR DETALLES DEL PEDIDO
+     * ========================================================= */
+    public static void actualizarDetallesPedido(int idPedido, DefaultTableModel modelo, double nuevoTotal) {
+        // Eliminar detalles existentes
+        String sqlDelete = "DELETE FROM DetallePedido WHERE idPedido = ?";
+        try (Connection con = ConexionBDSQLServer.GetConexion();
+             PreparedStatement ps = con.prepareStatement(sqlDelete)) {
+            ps.setInt(1, idPedido);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            System.err.println("Error al eliminar detalles antiguos: " + e.getMessage());
+        }
+        
+        // Insertar nuevos detalles
+        String sqlInsert = "INSERT INTO DetallePedido (idPedido, idProducto, cantidad, subtotal) VALUES (?, ?, ?, ?)";
+        try (Connection con = ConexionBDSQLServer.GetConexion();
+             PreparedStatement ps = con.prepareStatement(sqlInsert)) {
+            
+            for (int i = 0; i < modelo.getRowCount(); i++) {
+                ps.setInt(1, idPedido);
+                ps.setInt(2, (int) modelo.getValueAt(i, 0));
+                ps.setInt(3, (int) modelo.getValueAt(i, 2));
+                ps.setDouble(4, (double) modelo.getValueAt(i, 3));
+                ps.executeUpdate();
+            }
+        } catch (Exception e) {
+            System.err.println("Error al insertar nuevos detalles: " + e.getMessage());
+        }
+        
+        // Actualizar total del pedido
+        actualizarTotalPedido(idPedido, nuevoTotal);
+    }
+
+    /* =========================================================
+     * ACTUALIZAR TOTAL DEL PEDIDO
+     * ========================================================= */
+    public static void actualizarTotalPedido(int idPedido, double nuevoTotal) {
+        String sql = "UPDATE Pedido SET total = ? WHERE idPedido = ?";
+        
+        try (Connection con = ConexionBDSQLServer.GetConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            
+            ps.setDouble(1, nuevoTotal);
+            ps.setInt(2, idPedido);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            System.err.println("Error al actualizar total del pedido: " + e.getMessage());
         }
     }
 }

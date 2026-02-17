@@ -5,18 +5,23 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -26,7 +31,6 @@ import javax.swing.table.DefaultTableModel;
 import com.formdev.flatlaf.FlatLightLaf;
 
 import controladores.CInventario;
-import modelos.MInventario;
 
 /**
  * VISTA INVENTARIO
@@ -52,17 +56,39 @@ public class Inventario extends JFrame {
     private JTable tabla;
     private DefaultTableModel modelo;
     private JButton btnAgregar;
+    
+    /* ================= SIDEBAR ================= */
+    private JButton btnOrden;
+    private JButton btnInventario;
+    private JButton btnEmpleados;
+    private JButton btnReportes;
+    private JButton btnVerOrdenesDia;
+    private JButton btnAgregarEmpleado;
+    private JLabel lblUsuario;
+    private JLabel lblPuesto;
+    private JButton btnCerrarSesion;
+
+    /* ================= VARIABLES DE SESIÓN ================= */
+    private String rolSesion;
+    private String nombreSesion;
 
     /* ================= MAIN ================= */
+    /**
+     * Launch the application.
+     */
     public static void main(String[] args) {
         FlatLightLaf.setup();
-        SwingUtilities.invokeLater(() -> new Inventario().setVisible(true));
+        SwingUtilities.invokeLater(() -> {
+            Login login = new Login(); // Lanzar Login primero
+            login.setVisible(true);
+        });
     }
-
     /* ================= CONSTRUCTOR ================= */
-    public Inventario() {
+    public Inventario( String rol, String nombre) {
+        this.rolSesion = rol;
+        this.nombreSesion = nombre;
 
-        setTitle("Gestión de Inventario");
+        setTitle("Gestión de Inventario - Taquería El Bigotes");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1400, 800);
         setLocationRelativeTo(null);
@@ -74,90 +100,160 @@ public class Inventario extends JFrame {
         crearSidebar();
         crearHeader();
         crearTabla();
-        cargarInventarioDesdeBD();  // 🔥 ESTA LÍNEA FALTABA
-
+        cargarInventarioDesdeBD(); // Cargar datos al iniciar
     }
 
     /* ================= SIDEBAR (IGUAL A VENTA) ================= */
     private void crearSidebar() {
-
         panelSidebar = new JPanel();
         panelSidebar.setPreferredSize(new Dimension(230, 0));
         panelSidebar.setBackground(azulPrincipal);
         panelSidebar.setLayout(new BoxLayout(panelSidebar, BoxLayout.Y_AXIS));
-        panelSidebar.setBorder(new EmptyBorder(30, 20, 30, 20));
+        panelSidebar.setBorder(new EmptyBorder(50, 20, 30, 20));
+        
+        // Logo
+        JLabel lblLogo = new JLabel();
+        try {
+            ImageIcon icon = new ImageIcon(getClass().getResource("/imagenes/logo.jpg"));
+            Image img = icon.getImage().getScaledInstance(200, 50, Image.SCALE_SMOOTH);
+            lblLogo.setIcon(new ImageIcon(img));
+        } catch (Exception e) {
+            System.out.println("Logo no encontrado, usando texto.");
+        }
+        lblLogo.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panelSidebar.add(lblLogo);
+        panelSidebar.add(Box.createVerticalStrut(20));
 
-        JButton btnOrden = crearBotonMenu("Orden");
-        JButton btnInventario = crearBotonMenu("Inventario");
-        JButton btnEmpleados = crearBotonMenu("Empleados");
-        JButton btnReportes = crearBotonMenu("Reportes");
+        // Botones
+        btnOrden = crearBotonMenu("Orden");
+        btnInventario = crearBotonMenu("Inventario");
+        btnEmpleados = crearBotonMenu("Empleados");
+        btnReportes = crearBotonMenu("Reportes");
+        btnVerOrdenesDia = crearBotonMenu("Ver Órdenes del Día");
+
+        btnVerOrdenesDia.addActionListener(e -> verOrdenesDelDia());
+
+        if ("Administrador".equals(rolSesion)) {
+            btnAgregarEmpleado = crearBotonMenu("Agregar Empleado");
+            btnAgregarEmpleado.addActionListener(e -> new AgregarEmpleado().setVisible(true));
+        }
+
+        btnCerrarSesion = crearBotonMenu("Cerrar Sesión");
+        btnCerrarSesion.setBackground(amarilloAcento);
+        btnCerrarSesion.setForeground(Color.BLACK);
+        btnCerrarSesion.setPreferredSize(new Dimension(150, 42));
+        btnCerrarSesion.setMaximumSize(new Dimension(150, 42));
+        btnCerrarSesion.addActionListener(e -> cerrarSesion());
 
         panelSidebar.add(btnOrden);
-        panelSidebar.add(Box.createVerticalStrut(20));
+        panelSidebar.add(Box.createVerticalStrut(15));
         panelSidebar.add(btnInventario);
-        panelSidebar.add(Box.createVerticalStrut(20));
+        panelSidebar.add(Box.createVerticalStrut(15));
         panelSidebar.add(btnEmpleados);
-        panelSidebar.add(Box.createVerticalStrut(20));
+        panelSidebar.add(Box.createVerticalStrut(15));
         panelSidebar.add(btnReportes);
-        panelSidebar.add(Box.createVerticalGlue());
+        panelSidebar.add(Box.createVerticalStrut(15));
+        panelSidebar.add(btnVerOrdenesDia);
+        if ("Administrador".equals(rolSesion)) {
+            panelSidebar.add(Box.createVerticalStrut(15));
+            panelSidebar.add(btnAgregarEmpleado);
+        }
+        // Cerrar sesión al final
+	    panelSidebar.add(Box.createVerticalStrut(30)); // Más separación antes de cerrar sesión
+	    panelSidebar.add(btnCerrarSesion);
+	    
+	    panelSidebar.add(Box.createVerticalGlue());
+	    panelSidebar.add(Box.createVerticalGlue());
+        panelSidebar.add(Box.createVerticalStrut(15));
+        // Panel info usuario
+        JPanel panelInfoUsuario = new JPanel();
+        panelInfoUsuario.setLayout(new BoxLayout(panelInfoUsuario, BoxLayout.Y_AXIS));
+        panelInfoUsuario.setBackground(new Color(245, 245, 220));
+        panelInfoUsuario.setBorder(new EmptyBorder(10, 10, 10, 10));
+        panelInfoUsuario.setMaximumSize(new Dimension(200, 60));
+        panelInfoUsuario.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel lblUsuario = new JLabel("Sesión Activa");
-        lblUsuario.setForeground(Color.WHITE);
+        lblUsuario = new JLabel(nombreSesion);
+        lblUsuario.setForeground(Color.BLACK);
+        lblUsuario.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        lblUsuario.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        panelSidebar.add(lblUsuario);
+        lblPuesto = new JLabel(rolSesion);
+        lblPuesto.setForeground(new Color(0, 51, 102));
+        lblPuesto.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        lblPuesto.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+        panelInfoUsuario.add(lblUsuario);
+        panelInfoUsuario.add(Box.createVerticalStrut(5));
+        panelInfoUsuario.add(lblPuesto);
+
+        panelSidebar.add(panelInfoUsuario);
         contentPane.add(panelSidebar, BorderLayout.WEST);
     }
 
-    private JButton crearBotonMenu(String texto) {
+    private void verOrdenesDelDia() {
+        // Implementar si es necesario, igual que en Venta
+    }
 
+    private JButton crearBotonMenu(String texto) {
         JButton btn = new JButton(texto);
-        btn.setMaximumSize(new Dimension(200, 42));
         btn.setAlignmentX(Component.CENTER_ALIGNMENT);
         btn.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-        btn.setFocusPainted(false);
-        btn.setBorder(new EmptyBorder(10, 15, 10, 15));
         btn.setBackground(rosaAcento);
         btn.setForeground(Color.WHITE);
         btn.putClientProperty("JButton.buttonType", "roundRect");
-
+        btn.setPreferredSize(new Dimension(200, 42));
+        btn.setMaximumSize(new Dimension(200, 42));
         return btn;
+    }
+
+    private void cerrarSesion() {
+        int opcion = JOptionPane.showConfirmDialog(this, "¿Estás seguro de que quieres cerrar sesión?", "Confirmar", JOptionPane.YES_NO_OPTION);
+        if (opcion == JOptionPane.YES_OPTION) {
+            this.dispose();
+            new Login().setVisible(true);
+        }
     }
 
     /* ================= HEADER ================= */
     private void crearHeader() {
-
         panelHeader = new JPanel(new BorderLayout());
         panelHeader.setBackground(Color.WHITE);
-        panelHeader.setBorder(new EmptyBorder(20, 30, 20, 30));
-
-        JLabel lblTitulo = new JLabel("Gestión de Inventario");
+        panelHeader.setBorder(new EmptyBorder(15, 25, 15, 25));
+        
+        JLabel lblTitulo = new JLabel("Taquería El Bigotes");
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 24));
         lblTitulo.setForeground(rosaAcento);
-
-        btnAgregar = new JButton("➕ Agregar Producto");
-        btnAgregar.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btnAgregar.setBackground(amarilloAcento);
-        btnAgregar.setForeground(Color.BLACK);
-        btnAgregar.putClientProperty("JButton.buttonType", "roundRect");
-
-        btnAgregar.addActionListener(e -> mostrarFormularioAgregar());
-
+        
+        JLabel lblFecha = new JLabel(LocalDateTime.now().format(DateTimeFormatter.ofPattern("EEEE, d MMM yyyy HH:mm")));
+        lblFecha.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        lblFecha.setForeground(Color.GRAY);
+        
         panelHeader.add(lblTitulo, BorderLayout.WEST);
-        panelHeader.add(btnAgregar, BorderLayout.EAST);
-
+        panelHeader.add(lblFecha, BorderLayout.EAST);
+        
         contentPane.add(panelHeader, BorderLayout.NORTH);
     }
 
     /* ================= TABLA ================= */
     private void crearTabla() {
-
         panelTabla = new JPanel(new BorderLayout());
         panelTabla.setBackground(fondoClaro);
         panelTabla.setBorder(new EmptyBorder(30, 30, 30, 30));
 
-        modelo = new DefaultTableModel(
-                new Object[]{"Producto", "Cantidad", "Última Actualización", "Editar", "Eliminar"}, 0) {
+        // Botón Agregar arriba
+        btnAgregar = new JButton("Agregar Producto");
+        btnAgregar.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        btnAgregar.setBackground(amarilloAcento);
+        btnAgregar.setForeground(Color.BLACK);
+        btnAgregar.putClientProperty("JButton.buttonType", "roundRect");
+        btnAgregar.addActionListener(e -> mostrarFormularioAgregar());
+        
+        JPanel panelTop = new JPanel(new BorderLayout());
+        panelTop.setBackground(fondoClaro);
+        panelTop.add(btnAgregar, BorderLayout.WEST);
+
+        modelo = new DefaultTableModel(new Object[]{"ID", "Producto", "Cantidad", "Última Actualización", "Editar", "Eliminar"}, 0) {
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
@@ -169,121 +265,93 @@ public class Inventario extends JFrame {
         tabla.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
         tabla.getTableHeader().setBackground(rosaAcento);
         tabla.getTableHeader().setForeground(Color.WHITE);
+        tabla.removeColumn(tabla.getColumnModel().getColumn(0)); // Ocultar ID
 
         tabla.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-
                 int fila = tabla.rowAtPoint(e.getPoint());
                 int columna = tabla.columnAtPoint(e.getPoint());
-
-                if (columna == 3) {
-                    editarProducto(fila);
-                }
-
-                if (columna == 4) {
-                    eliminarProducto(fila);
-                }
+                if (columna == 3) editarProducto(fila); // Columna Editar
+                if (columna == 4) eliminarProducto(fila); // Columna Eliminar
             }
         });
 
+        panelTabla.add(panelTop, BorderLayout.NORTH);
         panelTabla.add(new JScrollPane(tabla), BorderLayout.CENTER);
         contentPane.add(panelTabla, BorderLayout.CENTER);
     }
-    
-    
+
     /* ================= CARGAR DATOS DESDE BD ================= */
     private void cargarInventarioDesdeBD() {
-
-        modelo.setRowCount(0); // limpiar tabla
-
-        List<MInventario> lista = CInventario.cargarInventario();
-
-        for (MInventario inv : lista
-        		MInsumo ins : lista) {
-
+        modelo.setRowCount(0); // Limpiar tabla
+        List<Object[]> lista = CInventario.cargarInventario();
+        for (Object[] item : lista) {
             modelo.addRow(new Object[]{
-                    inv.getNombreInsumo(),
-                    inv.getCantidadDisponible() + " " + inv.getUnidadMedida(),
-                    inv.getFechaActualizacion(),
-                    "✏️",
-                    "🗑"
+                item[0], // idInventario
+                item[1], // nombreInsumo
+                item[3] + " " + item[2], // cantidad + unidadMedida
+                item[4], // fechaActualizacion
+                "✏️",
+                "🗑"
             });
         }
     }
 
-    
-
     /* ================= FORMULARIO AGREGAR ================= */
     private void mostrarFormularioAgregar() {
-
-        JTextField txtProducto = new JTextField();
-        JTextField txtCantidad = new JTextField();
+        JTextField txtNombre = new JTextField();
+        JTextField txtUnidad = new JTextField();
+        JSpinner spinnerCantidad = new JSpinner();
+        spinnerCantidad.setValue(1.0);
 
         Object[] mensaje = {
-                "Producto:", txtProducto,
-                "Cantidad:", txtCantidad
+            "Nombre del Producto:", txtNombre,
+            "Unidad de Medida:", txtUnidad,
+            "Cantidad:", spinnerCantidad
         };
 
-        int opcion = JOptionPane.showConfirmDialog(
-                this,
-                mensaje,
-                "Nuevo Producto",
-                JOptionPane.OK_CANCEL_OPTION);
-
+        int opcion = JOptionPane.showConfirmDialog(this, mensaje, "Agregar Producto", JOptionPane.OK_CANCEL_OPTION);
         if (opcion == JOptionPane.OK_OPTION) {
-
-            String producto = txtProducto.getText();
-            String cantidad = txtCantidad.getText();
-
-            modelo.addRow(new Object[]{
-                    producto,
-                    cantidad,
-                    java.time.LocalDateTime.now(),
-                    "✏️",
-                    "🗑"
-            });
+            String nombre = txtNombre.getText().trim();
+            String unidad = txtUnidad.getText().trim();
+            Number cantidadValue = (Number) spinnerCantidad.getValue();
+            double cantidad = cantidadValue.doubleValue();
+            
+            if (nombre.isEmpty() || unidad.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Complete todos los campos.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            CInventario.agregarProductoCompleto(nombre, unidad, cantidad);
+            cargarInventarioDesdeBD(); // Recargar tabla
         }
     }
 
     /* ================= EDITAR ================= */
     private void editarProducto(int fila) {
+        int idInventario = (int) modelo.getValueAt(fila, 0);
+        String cantidadStr = modelo.getValueAt(fila, 2).toString();
+        double cantidadActual = Double.parseDouble(cantidadStr.split(" ")[0]); // Extraer solo el número
 
-        String productoActual = modelo.getValueAt(fila, 0).toString();
-        String cantidadActual = modelo.getValueAt(fila, 1).toString();
+        JSpinner spinnerCantidad = new JSpinner();
+        spinnerCantidad.setValue(cantidadActual);
 
-        JTextField txtProducto = new JTextField(productoActual);
-        JTextField txtCantidad = new JTextField(cantidadActual);
-
-        Object[] mensaje = {
-                "Producto:", txtProducto,
-                "Cantidad:", txtCantidad
-        };
-
-        int opcion = JOptionPane.showConfirmDialog(
-                this,
-                mensaje,
-                "Editar Producto",
-                JOptionPane.OK_CANCEL_OPTION);
-
+        int opcion = JOptionPane.showConfirmDialog(this, new Object[]{"Nueva Cantidad:", spinnerCantidad}, "Editar Cantidad", JOptionPane.OK_CANCEL_OPTION);
         if (opcion == JOptionPane.OK_OPTION) {
-
-            modelo.setValueAt(txtProducto.getText(), fila, 0);
-            modelo.setValueAt(txtCantidad.getText(), fila, 1);
-            modelo.setValueAt(java.time.LocalDateTime.now(), fila, 2);
+            Number nuevaCantidadValue = (Number) spinnerCantidad.getValue();
+            double nuevaCantidad = nuevaCantidadValue.doubleValue();
+            CInventario.actualizarCantidad(idInventario, nuevaCantidad);
+            cargarInventarioDesdeBD(); // Recargar tabla
         }
     }
 
     /* ================= ELIMINAR ================= */
     private void eliminarProducto(int fila) {
-
-        int confirm = JOptionPane.showConfirmDialog(
-                this,
-                "¿Eliminar este producto?",
-                "Confirmar",
-                JOptionPane.YES_NO_OPTION);
-
+        int idInventario = (int) modelo.getValueAt(fila, 0);
+        int confirm = JOptionPane.showConfirmDialog(this, "¿Eliminar este registro?", "Confirmar", JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
-            modelo.removeRow(fila);
+            CInventario.eliminarInventario(idInventario);
+            cargarInventarioDesdeBD(); // Recargar tabla
         }
     }
 }
