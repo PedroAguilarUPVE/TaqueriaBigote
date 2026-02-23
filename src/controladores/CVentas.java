@@ -29,7 +29,7 @@ public class CVentas {
 
         List<MProductos> lista = new ArrayList<>();
 
-        String sql = "SELECT idProducto, nombre, precio, descripcion, urlFoto FROM Producto";
+        String sql = "SELECT idProducto, nombre, precio, descripcion, urlFoto,activo FROM Producto";
 
         try (Connection con = ConexionBDSQLServer.GetConexion();
              PreparedStatement ps = con.prepareStatement(sql);
@@ -42,6 +42,7 @@ public class CVentas {
                 p.setNombre(rs.getString("nombre"));
                 p.setPrecio(rs.getDouble("precio"));
                 p.setUrlFoto(rs.getString("urlFoto"));
+                p.setActivo((rs.getInt("activo")==1));
 
                 lista.add(p);
             }

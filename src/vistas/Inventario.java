@@ -89,7 +89,7 @@ public class Inventario extends JFrame {
         this.nombreSesion = nombre;
 
         setTitle("Gestión de Inventario - Taquería El Bigotes");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(1400, 800);
         setLocationRelativeTo(null);
 

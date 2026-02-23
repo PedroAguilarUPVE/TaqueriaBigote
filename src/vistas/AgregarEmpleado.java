@@ -84,7 +84,7 @@ public class AgregarEmpleado extends JFrame {
         rosaAcento = new Color(233, 30, 99);       // Rosa moderno
         
         setTitle("Agregar Empleado");
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+	    setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH); // Pantalla completa
         
         contentPane = new JPanel(new BorderLayout());
