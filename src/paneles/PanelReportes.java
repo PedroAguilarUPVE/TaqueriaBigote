@@ -6,6 +6,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
+<<<<<<< HEAD
 import java.io.OutputStream;
 import java.net.URL;
 import java.sql.Connection;
@@ -14,14 +15,21 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+=======
+import java.time.LocalTime;
+>>>>>>> 92ab6fd6b55d0fed6b54a7c5bb8011a6927316bc
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
+<<<<<<< HEAD
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+=======
+import javax.swing.JLabel;
+>>>>>>> 92ab6fd6b55d0fed6b54a7c5bb8011a6927316bc
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
@@ -29,6 +37,7 @@ import javax.swing.border.EmptyBorder;
 
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 
+<<<<<<< HEAD
 import conexion.ConexionBDSQLServer;
 import controladores.CReportes;
 import net.sf.jasperreports.engine.JasperCompileManager;
@@ -36,6 +45,9 @@ import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
+=======
+import controladores.CReportes;
+>>>>>>> 92ab6fd6b55d0fed6b54a7c5bb8011a6927316bc
 
 public class PanelReportes extends JPanel {
 
@@ -55,6 +67,7 @@ public class PanelReportes extends JPanel {
         setBackground(fondoClaro);
         setBorder(new EmptyBorder(30, 30, 30, 30));
 
+<<<<<<< HEAD
         JPanel header = new JPanel(new BorderLayout());
         header.setOpaque(false);
 
@@ -80,6 +93,12 @@ public class PanelReportes extends JPanel {
 
         // Agregar al panel principal
         add(header, BorderLayout.NORTH);
+=======
+        JLabel lblTitulo = new JLabel("Reportes de Ventas - Cortes del Día");
+        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 26));
+        lblTitulo.setForeground(azulPrincipal);
+        add(lblTitulo, BorderLayout.NORTH);
+>>>>>>> 92ab6fd6b55d0fed6b54a7c5bb8011a6927316bc
 
         JPanel contenedorTurnos = new JPanel(new GridLayout(1, 2, 30, 30));
         contenedorTurnos.setOpaque(false);
@@ -115,6 +134,7 @@ public class PanelReportes extends JPanel {
         contenedorTurnos.add(turno2);
 
         add(contenedorTurnos, BorderLayout.CENTER);
+<<<<<<< HEAD
        
     }
 
@@ -164,6 +184,11 @@ public class PanelReportes extends JPanel {
     }
 
 	private JPanel crearPanelTurno(String titulo, String horario, Icon iconoTurno,
+=======
+    }
+
+    private JPanel crearPanelTurno(String titulo, String horario, Icon iconoTurno,
+>>>>>>> 92ab6fd6b55d0fed6b54a7c5bb8011a6927316bc
                                     JLabel lblVenta, JLabel lblOrden,
                                     JLabel lblPromedio, JLabel lblPorcentaje) {
 

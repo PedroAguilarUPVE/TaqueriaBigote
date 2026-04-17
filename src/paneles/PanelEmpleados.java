@@ -211,6 +211,7 @@ public class PanelEmpleados extends JPanel {
                     "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
+<<<<<<< HEAD
          // Validar solo si el usuario escribió una nueva contraseña
             if (!nuevaPass.isEmpty()) {
                 if (nuevaPass.length() < 8 || !nuevaPass.matches(".*[A-Z].*")) {
@@ -220,6 +221,8 @@ public class PanelEmpleados extends JPanel {
                     return;
                 }
             }
+=======
+>>>>>>> 92ab6fd6b55d0fed6b54a7c5bb8011a6927316bc
             CEmpleados.actualizarEmpleado(idEmpleado, nuevoNombre, nuevoPuesto,
                 nuevoUsuario, nuevaPass.isEmpty() ? null : nuevaPass, nuevoRol);
             JOptionPane.showMessageDialog(this, "Empleado actualizado.", "Éxito",
@@ -287,6 +290,7 @@ public class PanelEmpleados extends JPanel {
                     "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
+<<<<<<< HEAD
          // Validación de contraseña
             if (password.length() < 8 || !password.matches(".*[A-Z].*")) {
                 JOptionPane.showMessageDialog(this,
@@ -294,6 +298,8 @@ public class PanelEmpleados extends JPanel {
                     "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
+=======
+>>>>>>> 92ab6fd6b55d0fed6b54a7c5bb8011a6927316bc
             CEmpleados.agregarEmpleado(nombre, puesto, usuario, password, rol);
             JOptionPane.showMessageDialog(this, "Empleado agregado.", "Éxito",
                 JOptionPane.INFORMATION_MESSAGE);

@@ -54,8 +54,12 @@ public class Login extends JFrame {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         contentPane = new JPanel(new BorderLayout());
+<<<<<<< HEAD
         contentPane.setBackground(new Color(58, 73, 97));
        
+=======
+        contentPane.setBackground(azulPrincipal);
+>>>>>>> 92ab6fd6b55d0fed6b54a7c5bb8011a6927316bc
         contentPane.setBorder(new EmptyBorder(50, 50, 50, 50));
         setContentPane(contentPane);
 

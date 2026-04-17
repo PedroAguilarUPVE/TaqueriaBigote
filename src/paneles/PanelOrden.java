@@ -4,12 +4,16 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
+<<<<<<< HEAD
 import java.awt.FlowLayout;
+=======
+>>>>>>> 92ab6fd6b55d0fed6b54a7c5bb8011a6927316bc
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+<<<<<<< HEAD
 import java.sql.Connection;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -17,6 +21,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+=======
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+>>>>>>> 92ab6fd6b55d0fed6b54a7c5bb8011a6927316bc
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -31,6 +41,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
 
+<<<<<<< HEAD
 import conexion.ConexionBDSQLServer;
 import controladores.CVentas;
 import modelos.MDetallePedido;
@@ -42,6 +53,11 @@ import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperPrintManager;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.view.JasperViewer;
+=======
+import controladores.CVentas;
+import modelos.MDetallePedido;
+import modelos.MProductos;
+>>>>>>> 92ab6fd6b55d0fed6b54a7c5bb8011a6927316bc
 import util.ImagenUtil;
 
 public class PanelOrden extends JPanel {
@@ -118,8 +134,13 @@ public class PanelOrden extends JPanel {
         });
 
         btnBebidas.addActionListener(e -> {
+<<<<<<< HEAD
         	filtroActual = "Bebida";   
         	cargarProductos();
+=======
+            filtroActual = "Bebidas";
+            cargarProductos();
+>>>>>>> 92ab6fd6b55d0fed6b54a7c5bb8011a6927316bc
             seleccionarFiltro(btnBebidas, btnTodos, btnComida, btnBebidas);
         });
 
@@ -127,7 +148,11 @@ public class PanelOrden extends JPanel {
         panelFiltros.add(btnComida);
         panelFiltros.add(btnBebidas);
 
+<<<<<<< HEAD
         panelGridProductos = new JPanel(new FlowLayout(FlowLayout.LEFT, 25, 25));
+=======
+        panelGridProductos = new JPanel(new GridLayout(0, 3, 25, 25));
+>>>>>>> 92ab6fd6b55d0fed6b54a7c5bb8011a6927316bc
         panelGridProductos.setBackground(fondoClaro);
 
         JScrollPane scroll = new JScrollPane(
@@ -302,16 +327,23 @@ public class PanelOrden extends JPanel {
 
     private void mostrarProductos(List<MProductos> lista) {
         panelGridProductos.removeAll();
+<<<<<<< HEAD
 
         DayOfWeek hoy = LocalDate.now().getDayOfWeek();
         boolean esFinDeSemana = (hoy == DayOfWeek.SATURDAY || hoy == DayOfWeek.SUNDAY);
 
         int contador = 0;
 
+=======
+        DayOfWeek hoy = LocalDate.now().getDayOfWeek();
+        boolean esFinDeSemana = (hoy == DayOfWeek.SATURDAY || hoy == DayOfWeek.SUNDAY);
+
+>>>>>>> 92ab6fd6b55d0fed6b54a7c5bb8011a6927316bc
         for (MProductos p : lista) {
             if (!p.isActivo()) continue;
             if (p.getNombre().equalsIgnoreCase("Menudo") && !esFinDeSemana) continue;
             if (!filtroActual.equals("Todos") && !p.getCategoria().equalsIgnoreCase(filtroActual)) continue;
+<<<<<<< HEAD
 
             panelGridProductos.add(crearTarjetaProducto(p));
             contador++;
@@ -323,6 +355,11 @@ public class PanelOrden extends JPanel {
 
         panelGridProductos.setPreferredSize(new Dimension(700, altura));
 
+=======
+            panelGridProductos.add(crearTarjetaProducto(p));
+        }
+
+>>>>>>> 92ab6fd6b55d0fed6b54a7c5bb8011a6927316bc
         panelGridProductos.revalidate();
         panelGridProductos.repaint();
     }
@@ -333,7 +370,11 @@ public class PanelOrden extends JPanel {
         JPanel card = new JPanel(new BorderLayout());
         card.setBorder(new EmptyBorder(15, 15, 15, 15));
         card.setBackground(Color.WHITE);
+<<<<<<< HEAD
         card.setPreferredSize(new Dimension(180, 250));
+=======
+        card.setPreferredSize(new Dimension(200, 250));
+>>>>>>> 92ab6fd6b55d0fed6b54a7c5bb8011a6927316bc
 
         JLabel lblImagen = new JLabel();
         lblImagen.setHorizontalAlignment(SwingConstants.CENTER);
@@ -418,7 +459,10 @@ public class PanelOrden extends JPanel {
                 CVentas.registrarDetalle(detalle);
             }
             JOptionPane.showMessageDialog(this, "Orden completada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+<<<<<<< HEAD
             imprimirTicket(idPedido);
+=======
+>>>>>>> 92ab6fd6b55d0fed6b54a7c5bb8011a6927316bc
             limpiarOrden();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -426,6 +470,7 @@ public class PanelOrden extends JPanel {
         }
     }
 
+<<<<<<< HEAD
     private void imprimirTicket(int idPedido) {
         try {
             Connection conexion = ConexionBDSQLServer.GetConexion();
@@ -456,6 +501,9 @@ public class PanelOrden extends JPanel {
 	
 
 	public void limpiarOrden() {
+=======
+    public void limpiarOrden() {
+>>>>>>> 92ab6fd6b55d0fed6b54a7c5bb8011a6927316bc
         modeloResumen.setRowCount(0);
         total = 0;
         lblTotal.setText("TOTAL: $0.00");
@@ -475,6 +523,9 @@ public class PanelOrden extends JPanel {
         }
         return lista;
     }
+<<<<<<< HEAD
     
     
+=======
+>>>>>>> 92ab6fd6b55d0fed6b54a7c5bb8011a6927316bc
 }

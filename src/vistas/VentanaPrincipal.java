@@ -6,16 +6,23 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+<<<<<<< HEAD
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+=======
+import java.awt.Image;
+>>>>>>> 92ab6fd6b55d0fed6b54a7c5bb8011a6927316bc
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+<<<<<<< HEAD
 import javax.swing.BorderFactory;
+=======
+>>>>>>> 92ab6fd6b55d0fed6b54a7c5bb8011a6927316bc
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -120,12 +127,17 @@ public class VentanaPrincipal extends JFrame {
     private void crearSidebar() {
         JPanel panelSidebar = new JPanel();
         panelSidebar.setPreferredSize(new Dimension(230, 0));
+<<<<<<< HEAD
         panelSidebar.setBackground(new Color(58, 73, 97));
+=======
+        panelSidebar.setBackground(azulPrincipal);
+>>>>>>> 92ab6fd6b55d0fed6b54a7c5bb8011a6927316bc
         panelSidebar.setLayout(new BoxLayout(panelSidebar, BoxLayout.Y_AXIS));
         panelSidebar.setBorder(new EmptyBorder(50, 20, 30, 20));
 
         // Logo
         JLabel lblLogo = new JLabel();
+<<<<<<< HEAD
 
         try {
             ImageIcon icon = new ImageIcon(getClass().getResource("/imagenes/nuevologo.png"));
@@ -146,6 +158,19 @@ public class VentanaPrincipal extends JFrame {
 
         panelSidebar.add(lblLogo);
         panelSidebar.add(Box.createVerticalStrut(20));
+=======
+        try {
+            ImageIcon icon = new ImageIcon(getClass().getResource("/imagenes/logo.jpg"));
+            Image img = icon.getImage().getScaledInstance(200, 50, Image.SCALE_SMOOTH);
+            lblLogo.setIcon(new ImageIcon(img));
+        } catch (Exception e) {
+            System.out.println("Logo no encontrado.");
+        }
+        lblLogo.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panelSidebar.add(lblLogo);
+        panelSidebar.add(Box.createVerticalStrut(20));
+
+>>>>>>> 92ab6fd6b55d0fed6b54a7c5bb8011a6927316bc
      // Botones visibles para todos los roles
         agregarBoton(panelSidebar, "Orden", () -> mostrarPanel(VISTA_ORDEN), true); // seleccionado por defecto
         agregarBoton(panelSidebar, "Inventario", () -> mostrarPanel(VISTA_INVENTARIO), false);
@@ -189,8 +214,13 @@ public class VentanaPrincipal extends JFrame {
 
         JPanel panelInfoUsuario = new JPanel();
         panelInfoUsuario.setLayout(new BoxLayout(panelInfoUsuario, BoxLayout.Y_AXIS));
+<<<<<<< HEAD
         panelInfoUsuario.setBackground(new Color(245, 247, 250));
         panelInfoUsuario.setBorder(BorderFactory.createLineBorder(rosaAcento, 2));
+=======
+        panelInfoUsuario.setBackground(new Color(245, 245, 220));
+        panelInfoUsuario.setBorder(new EmptyBorder(10, 10, 10, 10));
+>>>>>>> 92ab6fd6b55d0fed6b54a7c5bb8011a6927316bc
         panelInfoUsuario.setMaximumSize(new Dimension(200, 60));
         panelInfoUsuario.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -200,8 +230,13 @@ public class VentanaPrincipal extends JFrame {
         lblUsuario.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel lblPuesto = new JLabel(rolSesion);
+<<<<<<< HEAD
         lblPuesto.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         lblPuesto.setForeground(new Color(233, 30, 99));
+=======
+        lblPuesto.setForeground(new Color(0, 51, 102));
+        lblPuesto.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+>>>>>>> 92ab6fd6b55d0fed6b54a7c5bb8011a6927316bc
         lblPuesto.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         panelInfoUsuario.add(lblUsuario);
@@ -319,7 +354,10 @@ public class VentanaPrincipal extends JFrame {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 if (!btn.getBackground().equals(colorSeleccionado)) {
                     btn.setBackground(colorHover);
+<<<<<<< HEAD
                     btn.setForeground(Color.BLACK);
+=======
+>>>>>>> 92ab6fd6b55d0fed6b54a7c5bb8011a6927316bc
                 }
             }
 
@@ -327,7 +365,10 @@ public class VentanaPrincipal extends JFrame {
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 if (!btn.getBackground().equals(colorSeleccionado)) {
                     btn.setBackground(colorBase);
+<<<<<<< HEAD
                     btn.setForeground(Color.WHITE);
+=======
+>>>>>>> 92ab6fd6b55d0fed6b54a7c5bb8011a6927316bc
                 }
             }
         });
