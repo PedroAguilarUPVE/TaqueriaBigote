@@ -86,10 +86,7 @@ public class VentanaVenta extends JFrame {
 	 * Botón para ver todas las órdenes del día
 	 */
 	private JButton btnVerOrdenesDia;
-	/**
-	 * Botón para agregar empleado (solo para administradores)
-	 */
-	private JButton btnAgregarEmpleado;
+	
 	private JLabel lblUsuario;
 	private JLabel lblPuesto;
 	/**
@@ -237,14 +234,7 @@ private void crearHeader() {
 	        }
 	    });
 
-	    // Agregar botón para agregar empleado solo si es administrador
-	    if ("Administrador".equals(rolSesion)) {
-	        btnAgregarEmpleado = crearBotonMenu("Agregar Empleado");
-	        btnAgregarEmpleado.addActionListener(e -> {
-	            AgregarEmpleado ventana = new AgregarEmpleado();
-	            ventana.setVisible(true);
-	        });
-	    }
+	 
 
 	    // Botón cerrar sesión
 	    btnCerrarSesion = crearBotonMenu("Cerrar Sesión");
@@ -258,15 +248,14 @@ private void crearHeader() {
 	    panelSidebar.add(btnOrden);
 	    panelSidebar.add(Box.createVerticalStrut(15)); // Separación
 	    panelSidebar.add(btnInventario);
-	    panelSidebar.add(Box.createVerticalStrut(15));
-	    panelSidebar.add(btnEmpleados);
+	   
 	    panelSidebar.add(Box.createVerticalStrut(15));
 	    panelSidebar.add(btnReportes);
 	    panelSidebar.add(Box.createVerticalStrut(15));
 	    panelSidebar.add(btnVerOrdenesDia);
 	    if ("Administrador".equals(rolSesion)) {
-	        panelSidebar.add(Box.createVerticalStrut(15));
-	        panelSidebar.add(btnAgregarEmpleado);
+	    	 panelSidebar.add(Box.createVerticalStrut(15));
+	 	    panelSidebar.add(btnEmpleados);
 	    }
 	    // Cerrar sesión al final
 	    panelSidebar.add(Box.createVerticalStrut(30)); // Más separación antes de cerrar sesión

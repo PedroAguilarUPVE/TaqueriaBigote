@@ -1,6 +1,15 @@
 package paneles;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Image;
+import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -8,11 +17,25 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
-import javax.swing.*;
+
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+
 import controladores.CProductos;
 import util.ImagenUtil;
 
@@ -62,7 +85,7 @@ public class PanelProductos extends JPanel {
         // Columnas modelo: ID(oculto), Nombre, Precio, Descripción, Estado, activo(oculto)
         // urlFoto NO aparece en la tabla — se carga solo en el modal de edición
         modelo = new DefaultTableModel(
-            new Object[]{"ID", "Nombre", "Precio", "Descripción", "Estado", "activo"}, 0) {
+            new Object[]{"ID", "Nombre", "Precio", "Descripción", "Categoría", "Estado", "activo"}, 0) {
             public boolean isCellEditable(int r, int c) { return false; }
         };
 
@@ -72,7 +95,7 @@ public class PanelProductos extends JPanel {
         tabla.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
         tabla.getTableHeader().setBackground(rosaAcento);
         tabla.getTableHeader().setForeground(Color.WHITE);
-        tabla.removeColumn(tabla.getColumnModel().getColumn(5)); // ocultar activo
+        tabla.removeColumn(tabla.getColumnModel().getColumn(6)); // ocultar activo
         tabla.removeColumn(tabla.getColumnModel().getColumn(0)); // ocultar ID
 
         // Renderer para filas inactivas en gris
@@ -82,7 +105,7 @@ public class PanelProductos extends JPanel {
                     boolean selected, boolean focused, int row, int col) {
                 Component c = super.getTableCellRendererComponent(t, value, selected, focused, row, col);
                 int filaModelo = t.convertRowIndexToModel(row);
-                boolean activo = (boolean) modelo.getValueAt(filaModelo, 5);
+                boolean activo = (boolean) modelo.getValueAt(filaModelo, 6);
                 if (!activo) {
                     c.setForeground(grisInactivo);
                     c.setBackground(selected ? new Color(220, 220, 220) : fondoInactivo);
@@ -130,41 +153,56 @@ public class PanelProductos extends JPanel {
         // Retorna: [idProducto, nombre, precio, descripcion, activo(boolean)]
         List<Object[]> lista = CProductos.obtenerTodosProductos();
         for (Object[] p : lista) {
-            boolean activo = (boolean) p[4];
-            modelo.addRow(new Object[]{
-                p[0],                              // ID (oculto)
-                p[1],                              // Nombre
-                p[2],                              // Precio
-                p[3],                              // Descripción
-                activo ? "Activo" : "Inactivo",    // Estado visible
-                activo                             // activo (oculto, para renderer)
+        	boolean activo = (boolean) p[5];
+
+        	modelo.addRow(new Object[]{
+        	    p[0],                         // ID
+        	    p[1],                         // Nombre
+        	    p[2],                         // Precio
+        	    p[3],                         // Descripción
+        	    p[4],                         // Categoría
+        	    activo ? "Activo" : "Inactivo",
+        	    activo
+                                    
             });
         }
     }
 
     private void abrirModalEdicion(int filaModelo) {
+
         int     id          = (int)     modelo.getValueAt(filaModelo, 0);
         String  nombre      = (String)  modelo.getValueAt(filaModelo, 1);
         double  precio      = (double)  modelo.getValueAt(filaModelo, 2);
         String  descripcion = (String)  modelo.getValueAt(filaModelo, 3);
-        boolean activo      = (boolean) modelo.getValueAt(filaModelo, 5);
+        String  categoriaActual = (String) modelo.getValueAt(filaModelo, 4);
+        boolean activo      = (boolean) modelo.getValueAt(filaModelo, 6);
 
         // Cargar urlFoto desde BD solo para el modal
         String urlFotoActual = CProductos.obtenerUrlFoto(id);
 
-        JTextField txtNombre      = new JTextField(nombre, 22);
-        JTextField txtPrecio      = new JTextField(String.valueOf(precio), 22);
-        JTextArea  txtDesc        = new JTextArea(descripcion, 3, 22);
+        JTextField txtNombre = new JTextField(nombre, 22);
+        JTextField txtPrecio = new JTextField(String.valueOf(precio), 22);
+
+        JTextArea txtDesc = new JTextArea(descripcion, 3, 22);
         txtDesc.setLineWrap(true);
         txtDesc.setWrapStyleWord(true);
 
+        // 🔥 ComboBox Categoría
+        JComboBox<String> cbCategoria =
+                new JComboBox<>(new String[]{"Comida", "Bebida"});
+        cbCategoria.setSelectedItem(categoriaActual);
+
+        // Imagen preview
         JLabel lblPreview = crearPreviewImagen(urlFotoActual);
         final String[] rutaSeleccionada = {urlFotoActual};
 
         JButton btnImagen = new JButton("Cambiar imagen...");
         btnImagen.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         btnImagen.addActionListener(ev -> {
-            String nombreActual = txtNombre.getText().trim().isEmpty() ? nombre : txtNombre.getText().trim();
+            String nombreActual = txtNombre.getText().trim().isEmpty()
+                    ? nombre
+                    : txtNombre.getText().trim();
+
             String nueva = seleccionarImagen(nombreActual);
             if (nueva != null) {
                 rutaSeleccionada[0] = nueva;
@@ -175,58 +213,98 @@ public class PanelProductos extends JPanel {
         JPanel panelImagen = new JPanel(new BorderLayout(5, 5));
         panelImagen.setBackground(Color.WHITE);
         panelImagen.add(lblPreview, BorderLayout.CENTER);
-        panelImagen.add(btnImagen,  BorderLayout.SOUTH);
+        panelImagen.add(btnImagen, BorderLayout.SOUTH);
 
-        JPanel panel = construirFormulario(txtNombre, txtPrecio, txtDesc, panelImagen);
+        // 🔥 IMPORTANTE: usar la versión nueva con categoría
+        JPanel panel = construirFormulario(
+                txtNombre, txtPrecio, txtDesc, cbCategoria, panelImagen);
 
-        // Botón de estado cambia según si está activo o no
         String textoEstado = activo ? "Inactivar Producto" : "Reactivar Producto";
-        Object[] opciones  = {"Guardar", textoEstado, "Cancelar"};
+        Object[] opciones = {"Guardar", textoEstado, "Cancelar"};
 
         int resultado = JOptionPane.showOptionDialog(
-            this, panel, "Editar: " + nombre,
-            JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
-            null, opciones, opciones[0]);
+                this,
+                panel,
+                "Editar: " + nombre,
+                JOptionPane.YES_NO_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                opciones,
+                opciones[0]);
 
-        if (resultado == 0) {
+        if (resultado == 0) { // GUARDAR
+
             try {
                 String nuevoNombre = txtNombre.getText().trim();
                 double nuevoPrecio = Double.parseDouble(txtPrecio.getText().trim());
                 String nuevaDesc   = txtDesc.getText().trim();
+                String nuevaCategoria = cbCategoria.getSelectedItem().toString();
 
                 if (nuevoNombre.isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "El nombre es obligatorio.", "Error",
-                        JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this,
+                            "El nombre es obligatorio.",
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                CProductos.actualizarProducto(id, nuevoNombre, nuevoPrecio, nuevaDesc, rutaSeleccionada[0]);
-                JOptionPane.showMessageDialog(this, "Producto actualizado.", "Éxito",
-                    JOptionPane.INFORMATION_MESSAGE);
+
+                // 🔥 AHORA GUARDA TAMBIÉN CATEGORÍA
+                CProductos.actualizarProducto(
+                        id,
+                        nuevoNombre,
+                        nuevoPrecio,
+                        nuevaDesc,
+                        rutaSeleccionada[0],
+                        nuevaCategoria
+                );
+
+                JOptionPane.showMessageDialog(this,
+                        "Producto actualizado.",
+                        "Éxito",
+                        JOptionPane.INFORMATION_MESSAGE);
+
                 cargarProductos();
+
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "El precio debe ser un número válido.", "Error",
-                    JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                        "El precio debe ser un número válido.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
             }
 
-        } else if (resultado == 1) {
+        } else if (resultado == 1) { // ACTIVAR / INACTIVAR
+
             if (activo) {
+
                 int confirm = JOptionPane.showConfirmDialog(this,
-                    "¿Inactivar \"" + nombre + "\"? Ya no aparecerá en el menú de órdenes.",
-                    "Confirmar", JOptionPane.YES_NO_OPTION);
+                        "¿Inactivar \"" + nombre +
+                        "\"? Ya no aparecerá en el menú de órdenes.",
+                        "Confirmar",
+                        JOptionPane.YES_NO_OPTION);
+
                 if (confirm == JOptionPane.YES_OPTION) {
                     CProductos.inactivarProducto(id);
-                    JOptionPane.showMessageDialog(this, "Producto inactivado.", "Listo",
-                        JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(this,
+                            "Producto inactivado.",
+                            "Listo",
+                            JOptionPane.INFORMATION_MESSAGE);
                     cargarProductos();
                 }
+
             } else {
+
                 int confirm = JOptionPane.showConfirmDialog(this,
-                    "¿Reactivar \"" + nombre + "\"? Volverá a aparecer en el menú de órdenes.",
-                    "Confirmar", JOptionPane.YES_NO_OPTION);
+                        "¿Reactivar \"" + nombre +
+                        "\"? Volverá a aparecer en el menú de órdenes.",
+                        "Confirmar",
+                        JOptionPane.YES_NO_OPTION);
+
                 if (confirm == JOptionPane.YES_OPTION) {
                     CProductos.activarProducto(id);
-                    JOptionPane.showMessageDialog(this, "Producto reactivado.", "Listo",
-                        JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(this,
+                            "Producto reactivado.",
+                            "Listo",
+                            JOptionPane.INFORMATION_MESSAGE);
                     cargarProductos();
                 }
             }
@@ -237,6 +315,8 @@ public class PanelProductos extends JPanel {
         JTextField txtNombre = new JTextField(22);
         JTextField txtPrecio = new JTextField(22);
         JTextArea  txtDesc   = new JTextArea(3, 22);
+        JComboBox<String> cbCategoria = new JComboBox<>(new String[]{"Comida", "Bebida"});
+        cbCategoria.setSelectedItem("Comida"); // default
         txtDesc.setLineWrap(true);
         txtDesc.setWrapStyleWord(true);
 
@@ -265,8 +345,9 @@ public class PanelProductos extends JPanel {
         panelImagen.add(lblPreview, BorderLayout.CENTER);
         panelImagen.add(btnImagen,  BorderLayout.SOUTH);
 
-        JPanel panel = construirFormulario(txtNombre, txtPrecio, txtDesc, panelImagen);
-
+        JPanel panel = construirFormulario(txtNombre, txtPrecio, txtDesc, cbCategoria, panelImagen);
+        
+        
         int resultado = JOptionPane.showConfirmDialog(this, panel, "Agregar Producto",
             JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
@@ -276,13 +357,14 @@ public class PanelProductos extends JPanel {
                 double precio = Double.parseDouble(txtPrecio.getText().trim());
                 String desc   = txtDesc.getText().trim();
                 String foto   = rutaSeleccionada[0] != null ? rutaSeleccionada[0] : "";
+                String categoria = cbCategoria.getSelectedItem().toString();
 
                 if (nombre.isEmpty()) {
                     JOptionPane.showMessageDialog(this, "El nombre es obligatorio.", "Error",
                         JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                CProductos.agregarProducto(nombre, precio, desc, foto);
+                CProductos.agregarProducto(nombre, precio, desc, foto, categoria);
                 JOptionPane.showMessageDialog(this, "Producto agregado.", "Éxito",
                     JOptionPane.INFORMATION_MESSAGE);
                 cargarProductos();
@@ -294,7 +376,8 @@ public class PanelProductos extends JPanel {
     }
 
     private JPanel construirFormulario(JTextField txtNombre, JTextField txtPrecio,
-                                        JTextArea txtDesc, JPanel panelImagen) {
+            JTextArea txtDesc, JComboBox<String> cbCategoria,
+            JPanel panelImagen) {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(Color.WHITE);
         GridBagConstraints g = new GridBagConstraints();
@@ -308,38 +391,50 @@ public class PanelProductos extends JPanel {
         g.gridx = 1;               panel.add(txtPrecio, g);
         g.gridx = 0; g.gridy = 2; panel.add(new JLabel("Descripción:"), g);
         g.gridx = 1;               panel.add(new JScrollPane(txtDesc),   g);
-        g.gridx = 0; g.gridy = 3; panel.add(new JLabel("Imagen:"),      g);
+        g.gridx = 0; g.gridy = 3; panel.add(new JLabel("Categoría:"), g);
+        g.gridx = 1;               panel.add(cbCategoria, g);
+        g.gridx = 0; g.gridy = 4; panel.add(new JLabel("Imagen:"), g);
         g.gridx = 1;               panel.add(panelImagen, g);
 
         return panel;
     }
 
     private String seleccionarImagen(String nombreProducto) {
+
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Seleccionar imagen del producto");
         chooser.setFileFilter(new FileNameExtensionFilter(
             "Imágenes (jpg, png, gif)", "jpg", "jpeg", "png", "gif"));
 
-        if (chooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) return null;
+        if (chooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION)
+            return null;
 
         File archivo = chooser.getSelectedFile();
-        String nombreArchivo = ImagenUtil.generarNombreArchivo(nombreProducto);
 
-        File destDir = new File("src/imagenes");
-        if (!destDir.exists()) destDir = new File("imagenes");
+        // 🔥 Obtener extensión original
+        String nombreOriginal = archivo.getName();
+        String extension = nombreOriginal.substring(nombreOriginal.lastIndexOf("."));
+
+        // 🔥 Generar nombre final con extensión correcta
+        String nombreArchivo = ImagenUtil.generarNombreArchivo(nombreProducto) + extension;
+
+        File destDir = new File("imagenes"); // usar carpeta fuera de src
         if (!destDir.exists()) destDir.mkdirs();
 
+        File destino = new File(destDir, nombreArchivo);
+
         try {
-            Files.copy(archivo.toPath(), new File(destDir, nombreArchivo).toPath(),
+            Files.copy(archivo.toPath(), destino.toPath(),
                 StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(this,
-                "No se pudo copiar la imagen: " + ex.getMessage(), "Error",
-                JOptionPane.ERROR_MESSAGE);
+                "No se pudo copiar la imagen: " + ex.getMessage(),
+                "Error", JOptionPane.ERROR_MESSAGE);
             return null;
         }
 
-        return ImagenUtil.generarRutaBD(nombreProducto);
+        // 🔥 DEVOLVER RUTA REAL RELATIVA
+        return "imagenes/" + nombreArchivo;
     }
 
     private JLabel crearPreviewImagen(String urlFoto) {

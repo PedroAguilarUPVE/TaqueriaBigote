@@ -1,11 +1,26 @@
 package paneles;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
-import javax.swing.*;
+
+import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+
+import com.formdev.flatlaf.extras.FlatSVGIcon;
+
 import controladores.CInventario;
 
 /**
@@ -74,8 +89,17 @@ public class PanelInventario extends JPanel {
 
         // ── Tabla ─────────────────────────────────────────────────────────
         modelo = new DefaultTableModel(
-            new Object[]{"ID", "Producto", "Cantidad", "Última Actualización", "Editar", "Eliminar"}, 0) {
-            public boolean isCellEditable(int row, int column) { return false; }
+                new Object[]{"ID", "Nombre", "Cantidad", "Fecha", "Editar", "Eliminar"}, 0) {
+
+            @Override
+            public Class<?> getColumnClass(int columnIndex) {
+
+                if (columnIndex == 4 || columnIndex == 5) {
+                    return Icon.class; // Estas columnas son iconos
+                }
+
+                return Object.class;
+            }
         };
 
         tabla = new JTable(modelo);
@@ -109,16 +133,25 @@ public class PanelInventario extends JPanel {
         modelo.setRowCount(0);
         List<Object[]> lista = CInventario.cargarInventario();
         for (Object[] item : lista) {
+        	
+        	  Icon iconEditar = new FlatSVGIcon(
+                      getClass().getResource("/icons/edit.svg"));
+
+              Icon iconEliminar = new FlatSVGIcon(
+                      getClass().getResource("/icons/delete.svg"));
+        	
             modelo.addRow(new Object[]{
                 item[0],                 // idInventario (oculto)
                 item[1],                 // nombreInsumo
                 item[3] + " " + item[2], // cantidad + unidadMedida
                 item[4],                 // fechaActualizacion
-                "✏️",
-                "🗑"
+                iconEditar,
+                iconEliminar
+                
             });
         }
     }
+    
 
     private void mostrarFormularioAgregar() {
         JTextField txtNombre   = new JTextField();

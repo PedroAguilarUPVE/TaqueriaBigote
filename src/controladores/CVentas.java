@@ -40,6 +40,7 @@ public class CVentas {
                 MProductos p = new MProductos();
                 p.setIdProducto(rs.getInt("idProducto"));
                 p.setNombre(rs.getString("nombre"));
+                p.setDescripcion(rs.getString("descripcion"));
                 p.setPrecio(rs.getDouble("precio"));
                 p.setUrlFoto(rs.getString("urlFoto"));
                 p.setActivo((rs.getInt("activo")==1));
@@ -53,7 +54,7 @@ public class CVentas {
 
         return lista;
     }
-
+    
     /* =========================================================
      * REGISTRAR PEDIDO (CON SESIÓN)
      * ========================================================= */
@@ -249,5 +250,41 @@ public class CVentas {
         } catch (Exception e) {
             System.err.println("Error al actualizar total del pedido: " + e.getMessage());
         }
+    }
+
+    public static List<MProductos> cargarProductosPorCategoria(String categoria) {
+
+        List<MProductos> lista = new ArrayList<>();
+
+        String sql = "SELECT idProducto, nombre, precio, descripcion, urlFoto, categoria, activo " +
+                     "FROM Producto WHERE activo = 1 AND categoria = ?";
+
+        try (Connection con = ConexionBDSQLServer.GetConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, categoria);
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                while (rs.next()) {
+
+                    MProductos producto = new MProductos();
+                    producto.setIdProducto(rs.getInt("idProducto"));
+                    producto.setNombre(rs.getString("nombre"));
+                    producto.setPrecio(rs.getDouble("precio"));
+                    producto.setDescripcion(rs.getString("descripcion"));
+                    producto.setUrlFoto(rs.getString("urlFoto"));
+                    producto.setCategoria(rs.getString("categoria"));
+                    producto.setActivo(rs.getBoolean("activo"));
+
+                    lista.add(producto);
+                }
+            }
+
+        } catch (Exception e) {
+            System.err.println("Error al cargar productos por categoría: " + e.getMessage());
+        }
+
+        return lista;
     }
 }

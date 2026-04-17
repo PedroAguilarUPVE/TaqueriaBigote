@@ -63,7 +63,6 @@ public class Inventario extends JFrame {
     private JButton btnEmpleados;
     private JButton btnReportes;
     private JButton btnVerOrdenesDia;
-    private JButton btnAgregarEmpleado;
     private JLabel lblUsuario;
     private JLabel lblPuesto;
     private JButton btnCerrarSesion;
@@ -127,15 +126,14 @@ public class Inventario extends JFrame {
         // Botones
         btnOrden = crearBotonMenu("Orden");
         btnInventario = crearBotonMenu("Inventario");
-        btnEmpleados = crearBotonMenu("Empleados");
         btnReportes = crearBotonMenu("Reportes");
         btnVerOrdenesDia = crearBotonMenu("Ver Órdenes del Día");
 
         btnVerOrdenesDia.addActionListener(e -> verOrdenesDelDia());
 
         if ("Administrador".equals(rolSesion)) {
-            btnAgregarEmpleado = crearBotonMenu("Agregar Empleado");
-            btnAgregarEmpleado.addActionListener(e -> new AgregarEmpleado().setVisible(true));
+        	btnEmpleados = crearBotonMenu("EmpleadoS");
+        	btnEmpleados.addActionListener(e -> new AgregarEmpleado().setVisible(true));
         }
 
         btnCerrarSesion = crearBotonMenu("Cerrar Sesión");
@@ -148,15 +146,14 @@ public class Inventario extends JFrame {
         panelSidebar.add(btnOrden);
         panelSidebar.add(Box.createVerticalStrut(15));
         panelSidebar.add(btnInventario);
-        panelSidebar.add(Box.createVerticalStrut(15));
-        panelSidebar.add(btnEmpleados);
+       
         panelSidebar.add(Box.createVerticalStrut(15));
         panelSidebar.add(btnReportes);
         panelSidebar.add(Box.createVerticalStrut(15));
         panelSidebar.add(btnVerOrdenesDia);
         if ("Administrador".equals(rolSesion)) {
             panelSidebar.add(Box.createVerticalStrut(15));
-            panelSidebar.add(btnAgregarEmpleado);
+            panelSidebar.add(btnEmpleados);
         }
         // Cerrar sesión al final
 	    panelSidebar.add(Box.createVerticalStrut(30)); // Más separación antes de cerrar sesión

@@ -1,12 +1,30 @@
 package paneles;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
-import javax.swing.*;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.JTable;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+
 import controladores.CVentas;
 import vistas.VentanaPrincipal;
 
@@ -26,7 +44,6 @@ public class PanelDetallesOrden extends JPanel {
 
     private final Color azulPrincipal  = new Color(31, 42, 68);
     private final Color rosaAcento     = new Color(233, 30, 99);
-    private final Color amarilloAcento = new Color(255, 193, 7);
 
     private JTable            tablaDetalles;
     private DefaultTableModel modeloDetalles;
@@ -84,7 +101,8 @@ public class PanelDetallesOrden extends JPanel {
         // ── Tabla — sin celdas editables ──────────────────────────────────
         modeloDetalles = new DefaultTableModel(
             new Object[]{"ID Producto", "Producto", "Cantidad", "Subtotal"}, 0) {
-            @Override
+
+			@Override
             public boolean isCellEditable(int row, int column) {
                 return false; // Edición solo a través del modal
             }

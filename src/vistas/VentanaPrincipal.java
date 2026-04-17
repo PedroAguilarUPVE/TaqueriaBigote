@@ -1,12 +1,37 @@
 package vistas;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Image;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import javax.swing.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
+
 import com.formdev.flatlaf.FlatLightLaf;
-import paneles.*;
+
+import paneles.PanelDetallesOrden;
+import paneles.PanelEmpleados;
+import paneles.PanelInventario;
+import paneles.PanelOrden;
+import paneles.PanelOrdenesDia;
+import paneles.PanelProductos;
+import paneles.PanelReportes;
 
 /*
  * Ventana base principal.
@@ -36,7 +61,8 @@ public class VentanaPrincipal extends JFrame {
     private PanelDetallesOrden   panelDetallesOrden;
     private PanelProductos       panelProductos;
     private PanelEmpleados       panelEmpleados;
-    private PanelAgregarEmpleado panelAgregarEmpleado;
+    private PanelReportes panelReportes;
+
 
     public static final String VISTA_ORDEN            = "orden";
     public static final String VISTA_INVENTARIO       = "inventario";
@@ -44,7 +70,6 @@ public class VentanaPrincipal extends JFrame {
     public static final String VISTA_DETALLES         = "detalles";
     public static final String VISTA_PRODUCTOS        = "productos";
     public static final String VISTA_EMPLEADOS        = "empleados";
-    public static final String VISTA_AGREGAR_EMPLEADO = "agregarEmpleado";
     public static final String VISTA_REPORTES         = "reportes";
 
     public VentanaPrincipal(int idEmpleado, String rol, String nombre) {
@@ -108,17 +133,16 @@ public class VentanaPrincipal extends JFrame {
         panelSidebar.add(lblLogo);
         panelSidebar.add(Box.createVerticalStrut(20));
 
-        // Botones visibles para todos los roles
-        agregarBoton(panelSidebar, "Orden",               () -> mostrarPanel(VISTA_ORDEN));
-        agregarBoton(panelSidebar, "Inventario",          () -> mostrarPanel(VISTA_INVENTARIO));
-        agregarBoton(panelSidebar, "Productos",           () -> mostrarPanel(VISTA_PRODUCTOS));
-        agregarBoton(panelSidebar, "Ver Órdenes del Día", () -> mostrarPanel(VISTA_ORDENES));
-        agregarBoton(panelSidebar, "Reportes",            () -> mostrarPanel(VISTA_REPORTES));
+     // Botones visibles para todos los roles
+        agregarBoton(panelSidebar, "Orden", () -> mostrarPanel(VISTA_ORDEN), true); // seleccionado por defecto
+        agregarBoton(panelSidebar, "Inventario", () -> mostrarPanel(VISTA_INVENTARIO), false);
+        agregarBoton(panelSidebar, "Productos", () -> mostrarPanel(VISTA_PRODUCTOS), false);
+        agregarBoton(panelSidebar, "Ver Órdenes del Día", () -> mostrarPanel(VISTA_ORDENES), false);
+        agregarBoton(panelSidebar, "Reportes", () -> mostrarPanel(VISTA_REPORTES), false);
 
-        // Botones exclusivos para Administrador — no se agregan si el rol es otro
+        // Botones exclusivos para Administrador
         if ("Administrador".equals(rolSesion)) {
-            agregarBoton(panelSidebar, "Empleados",        () -> mostrarPanel(VISTA_EMPLEADOS));
-            agregarBoton(panelSidebar, "Agregar Empleado", () -> mostrarPanel(VISTA_AGREGAR_EMPLEADO));
+            agregarBoton(panelSidebar, "Empleados", () -> mostrarPanel(VISTA_EMPLEADOS), false);
         }
 
         // Cerrar sesión
@@ -126,6 +150,21 @@ public class VentanaPrincipal extends JFrame {
         JButton btnCerrarSesion = crearBotonMenu("Cerrar Sesión");
         btnCerrarSesion.setBackground(amarilloAcento);
         btnCerrarSesion.setForeground(Color.BLACK);
+
+        // Hover especial: amarillo → rosa
+        btnCerrarSesion.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnCerrarSesion.setBackground(rosaAcento);
+                btnCerrarSesion.setForeground(Color.WHITE);
+            }
+
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnCerrarSesion.setBackground(amarilloAcento);
+                btnCerrarSesion.setForeground(Color.BLACK);
+            }
+        });
         btnCerrarSesion.setMaximumSize(new Dimension(150, 42));
         btnCerrarSesion.setPreferredSize(new Dimension(150, 42));
         btnCerrarSesion.addActionListener(e -> cerrarSesion());
@@ -161,11 +200,31 @@ public class VentanaPrincipal extends JFrame {
     }
 
     // Agrega botón al sidebar sin repetir código
-    private void agregarBoton(JPanel sidebar, String texto, Runnable accion) {
+    private final List<JButton> botonesSidebar = new ArrayList<>();
+
+    private void agregarBoton(JPanel sidebar, String texto, Runnable accion, boolean seleccionadoInicial) {
         JButton btn = crearBotonMenu(texto);
-        btn.addActionListener(e -> accion.run());
+
+        // Si es el botón que debe estar seleccionado desde el inicio
+        if (seleccionadoInicial) {
+            btn.setBackground(new Color(60, 130, 200)); // azul fuerte
+        }
+
+        // Acción de mostrar panel y selección
+        btn.addActionListener(e -> {
+            // Resetear todos los botones al color base
+            for (JButton b : botonesSidebar) {
+                b.setBackground(rosaAcento);
+            }
+            // Seleccionar este botón
+            btn.setBackground(new Color(60, 130, 200)); // azul fuerte
+            accion.run();
+        });
+
+        // Agregar al panel y lista
         sidebar.add(btn);
         sidebar.add(Box.createVerticalStrut(15));
+        botonesSidebar.add(btn);
     }
 
     private void crearPanelCentral() {
@@ -190,17 +249,18 @@ public class VentanaPrincipal extends JFrame {
 
         panelProductos = new PanelProductos();
         registrarPanel(VISTA_PRODUCTOS, panelProductos);
+        
+        panelReportes = new PanelReportes();
+        registrarPanel(VISTA_REPORTES, panelReportes);
 
         // Solo se instancian y registran para administrador
         if ("Administrador".equals(rolSesion)) {
             panelEmpleados = new PanelEmpleados();
             registrarPanel(VISTA_EMPLEADOS, panelEmpleados);
 
-            panelAgregarEmpleado = new PanelAgregarEmpleado();
-            registrarPanel(VISTA_AGREGAR_EMPLEADO, panelAgregarEmpleado);
+       
         }
 
-        registrarPanel(VISTA_REPORTES, crearPlaceholder("Reportes - Próximamente"));
     }
 
     public void registrarPanel(String clave, JPanel panel) {
@@ -213,6 +273,9 @@ public class VentanaPrincipal extends JFrame {
         if (VISTA_ORDENES.equals(clave))    panelOrdenesDia.actualizar();
         if (VISTA_PRODUCTOS.equals(clave))  panelProductos.actualizar();
         if (VISTA_EMPLEADOS.equals(clave) && panelEmpleados != null) panelEmpleados.actualizar();
+        if (VISTA_REPORTES.equals(clave)) {
+            panelReportes.actualizar();
+        }
         cardLayout.show(panelCentral, clave);
     }
 
@@ -223,13 +286,37 @@ public class VentanaPrincipal extends JFrame {
 
     private JButton crearBotonMenu(String texto) {
         JButton btn = new JButton(texto);
+        btn.setFocusPainted(false);
         btn.setAlignmentX(Component.CENTER_ALIGNMENT);
         btn.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-        btn.setBackground(rosaAcento);
+
+        Color colorBase = rosaAcento;                  // rosa original
+        Color colorHover = new Color(180, 210, 250);   // azul clarito
+        Color colorSeleccionado = new Color(60, 130, 200); // azul fuerte
+
+        btn.setBackground(colorBase);
         btn.setForeground(Color.WHITE);
         btn.putClientProperty("JButton.buttonType", "roundRect");
         btn.setPreferredSize(new Dimension(200, 42));
         btn.setMaximumSize(new Dimension(200, 42));
+
+        // Hover
+        btn.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                if (!btn.getBackground().equals(colorSeleccionado)) {
+                    btn.setBackground(colorHover);
+                }
+            }
+
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                if (!btn.getBackground().equals(colorSeleccionado)) {
+                    btn.setBackground(colorBase);
+                }
+            }
+        });
+
         return btn;
     }
 
@@ -241,16 +328,6 @@ public class VentanaPrincipal extends JFrame {
             this.dispose();
             new Login().setVisible(true);
         }
-    }
-
-    private JPanel crearPlaceholder(String texto) {
-        JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBackground(fondoClaro);
-        JLabel lbl = new JLabel(texto);
-        lbl.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        lbl.setForeground(azulPrincipal);
-        panel.add(lbl);
-        return panel;
     }
 
     public static void main(String[] args) {

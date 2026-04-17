@@ -79,4 +79,17 @@ double precio;
  String descripcion;
  String urlFoto;
  boolean activo;
+ /**
+ * @return the categoria
+ */
+public String getCategoria() {
+	return categoria;
+}
+/**
+ * @param categoria the categoria to set
+ */
+public void setCategoria(String categoria) {
+	this.categoria = categoria;
+}
+String categoria;
 }
