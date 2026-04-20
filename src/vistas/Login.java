@@ -22,6 +22,7 @@ import javax.swing.border.EmptyBorder;
 
 import com.formdev.flatlaf.FlatLightLaf;
 
+import conexion.InicializadorBD;
 import controladores.CLogin;
 
 public class Login extends JFrame {
@@ -40,12 +41,40 @@ public class Login extends JFrame {
         try { FlatLightLaf.setup(); } catch (Exception e) { e.printStackTrace(); }
 
         SwingUtilities.invokeLater(() -> {
-            Login login = new Login();
-            login.setVisible(true);
+
+            if (!InicializadorBD.existeBaseDeDatos()) {
+                int opcion = JOptionPane.showConfirmDialog(null,
+                    "No se encontró la base de datos.\n¿Deseas crearla ahora?",
+                    "Base de datos no encontrada",
+                    JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+
+                if (opcion == JOptionPane.YES_OPTION) {
+                    boolean creada = InicializadorBD.crearBaseDeDatos("src\\db\\taqueriaBD.sql");
+                    if (!creada) {
+                        JOptionPane.showMessageDialog(null,
+                            "No se pudo crear la base de datos.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                        System.exit(1);
+                    }
+                } else {
+                    System.exit(0);
+                }
+            }
+
+            if (!InicializadorBD.existeAdmin()) {
+                PrimerUsoDialog dialogo = new PrimerUsoDialog();
+                dialogo.setVisible(true);
+                if (!dialogo.isAdminCreado()) System.exit(0);
+            }
+
+            new Login().setVisible(true);
         });
     }
 
     public Login() {
+    	
+
+    	
         azulPrincipal = new Color(31, 42, 68);
         rosaAcento    = new Color(233, 30, 99);
 

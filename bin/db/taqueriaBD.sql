@@ -1,11 +1,9 @@
-/*
-Base de datos para taqueria bigotes
-*/
-CREATE DATABASE TaqueriaBD;
-GO
 
-USE TaqueriaBD;
-GO
+/*
+CREATE DATABASE TaqueriaBD2;
+
+USE TaqueriaBD2;
+*/
 
 CREATE TABLE Producto (
     idProducto INT IDENTITY(1,1) PRIMARY KEY,
@@ -13,6 +11,7 @@ CREATE TABLE Producto (
     precio DECIMAL(10,2) NOT NULL,
     descripcion VARCHAR(255),
     urlFoto NVARCHAR(255),
+    categoria VARCHAR(50) NOT NULL DEFAULT 'Comida',
     activo BIT NOT NULL DEFAULT 1
 );
 

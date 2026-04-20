@@ -24,7 +24,9 @@ public class CProductos {
 
 		List<Object[]> lista = new ArrayList<>();
 
-		String sql = "SELECT idProducto, nombre, precio, descripcion, categoria, activo " + "FROM Producto "
+		String sql = "SELECT idProducto, nombre, precio, descripcion, "
+				+ "categoria,"
+				+ " activo " + "FROM Producto "
 				+ "ORDER BY activo DESC, nombre";
 
 		try (Connection con = ConexionBDSQLServer.GetConexion();

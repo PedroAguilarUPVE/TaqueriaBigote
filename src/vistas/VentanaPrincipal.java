@@ -6,12 +6,12 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Image;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -116,20 +116,32 @@ public class VentanaPrincipal extends JFrame {
     private void crearSidebar() {
         JPanel panelSidebar = new JPanel();
         panelSidebar.setPreferredSize(new Dimension(230, 0));
+
         panelSidebar.setBackground(azulPrincipal);
+
         panelSidebar.setLayout(new BoxLayout(panelSidebar, BoxLayout.Y_AXIS));
         panelSidebar.setBorder(new EmptyBorder(50, 20, 30, 20));
 
         // Logo
         JLabel lblLogo = new JLabel();
+
         try {
-            ImageIcon icon = new ImageIcon(getClass().getResource("/imagenes/logo.jpg"));
-            Image img = icon.getImage().getScaledInstance(200, 50, Image.SCALE_SMOOTH);
-            lblLogo.setIcon(new ImageIcon(img));
+            ImageIcon icon = new ImageIcon(getClass().getResource("/imagenes/nuevologo.png"));
+            
+            // SIN ESCALAR, directo
+            lblLogo.setIcon(icon);
+
         } catch (Exception e) {
             System.out.println("Logo no encontrado.");
         }
+
+        // 🔥 Asegurar tamaño EXACTO
+        lblLogo.setPreferredSize(new Dimension(200, 75));
+        lblLogo.setMaximumSize(new Dimension(200, 75));
+        lblLogo.setMinimumSize(new Dimension(200, 75));
+
         lblLogo.setAlignmentX(Component.CENTER_ALIGNMENT);
+
         panelSidebar.add(lblLogo);
         panelSidebar.add(Box.createVerticalStrut(20));
 
@@ -176,8 +188,10 @@ public class VentanaPrincipal extends JFrame {
 
         JPanel panelInfoUsuario = new JPanel();
         panelInfoUsuario.setLayout(new BoxLayout(panelInfoUsuario, BoxLayout.Y_AXIS));
-        panelInfoUsuario.setBackground(new Color(245, 245, 220));
-        panelInfoUsuario.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        panelInfoUsuario.setBackground(new Color(245, 247, 250));
+        panelInfoUsuario.setBorder(BorderFactory.createLineBorder(rosaAcento, 2));
+
         panelInfoUsuario.setMaximumSize(new Dimension(200, 60));
         panelInfoUsuario.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -187,8 +201,8 @@ public class VentanaPrincipal extends JFrame {
         lblUsuario.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel lblPuesto = new JLabel(rolSesion);
-        lblPuesto.setForeground(new Color(0, 51, 102));
         lblPuesto.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        lblPuesto.setForeground(new Color(233, 30, 99));
         lblPuesto.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         panelInfoUsuario.add(lblUsuario);
@@ -306,6 +320,9 @@ public class VentanaPrincipal extends JFrame {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 if (!btn.getBackground().equals(colorSeleccionado)) {
                     btn.setBackground(colorHover);
+
+                    btn.setForeground(Color.BLACK);
+
                 }
             }
 
@@ -313,6 +330,9 @@ public class VentanaPrincipal extends JFrame {
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 if (!btn.getBackground().equals(colorSeleccionado)) {
                     btn.setBackground(colorBase);
+
+                    btn.setForeground(Color.WHITE);
+
                 }
             }
         });
